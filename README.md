@@ -84,6 +84,17 @@ kubectl rollout restart -n user-platform-exam deploy/web-frontend
    - Docker Desktop: `http://localhost:30080`
    - Или `http://<node-ip>:30080`
 
+7. Остановить все pod:
+   ```bash
+   kubectl scale deploy -n user-platform-exam --all --replicas=0
+   ```
+
+8. Запустить все pod:
+   ```bash
+   kubectl scale deploy -n user-platform-exam --all --replicas=2
+   kubectl scale deploy -n user-platform-exam postgres --replicas=1
+   ```
+
 ## Работа с БД и миграциями
 - Модели и Alembic находятся в `db/`.
 - Пример `.env` содержит `DATABASE_URL` и прочие переменные.
