@@ -54,6 +54,11 @@ async def on_startup() -> None:
         settings.database_url,
     )
 
+    if settings.jwt_secret == "change-me":
+        logger.warning("JWT_SECRET не задан, используется небезопасное значение по умолчанию")
+    else:
+        logger.info("JWT_SECRET загружен из переменных окружения")
+
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
@@ -85,6 +90,9 @@ async def register_user(
             status_code=status.HTTP_409_CONFLICT,
             detail="Имя пользователя уже занято",
         )
+    except Exception:
+        await session.rollback()
+        raise
 
     return RegisterResponse(user_id=str(user.id), username=user.username)
 

@@ -1,9 +1,11 @@
 <!doctype html>
 <html lang="ru">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Autoexam UI</title>
+  <title>Учёт финансов</title>
+  <link rel="icon" href="./static/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
@@ -14,18 +16,39 @@
       color: #0f172a;
       background: #f8fafc;
     }
-    body { margin: 0; }
+
+    body {
+      margin: 0;
+    }
+
     header {
       background: linear-gradient(135deg, #0f172a, #1d4ed8);
       color: #fff;
-      padding: 16px 24px;
+      padding: 24px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      max-width: 1440px;
+      align-self: center;
+      margin: 0 auto;
+      border-bottom-left-radius: 32px;
+      border-bottom-right-radius: 32px;
     }
-    a { color: #1d4ed8; text-decoration: none; font-weight: 600; }
-    .container { max-width: 960px; margin: 24px auto; padding: 0 16px 48px; }
+
+    a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 12px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 60px auto;
+      padding: 0 16px 48px;
+    }
+
     .card {
       background: #fff;
       border-radius: 12px;
@@ -33,7 +56,14 @@
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
       margin-bottom: 16px;
     }
-    .tabs { display: flex; gap: 10px; margin-top: 8px; }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      justify-content: center;
+    }
+
     .btn {
       display: inline-block;
       padding: 10px 16px;
@@ -44,51 +74,94 @@
       cursor: pointer;
       font-weight: 600;
     }
-    .btn.secondary { background: #0f172a; }
-    input, select {
-      width: 100%;
+
+    .btn.secondary {
+      background: #1d4ed8;
+    }
+
+    input,
+    select {
+      width: 95%;
       padding: 10px 12px;
       margin: 6px 0 12px;
       border-radius: 8px;
       border: 1px solid #cbd5e1;
       background: #f8fafc;
     }
-    label { font-weight: 600; font-size: 14px; }
-    .grid { display: grid; gap: 16px; }
-    .grid.two { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-    .status { padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
-    .status.info { background: #e0f2fe; color: #075985; }
-    .status.error { background: #fee2e2; color: #991b1b; }
-    nav a { color: #fff; margin-left: 12px; }
+
+    .select {
+      width: 100%;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.two {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+
+    .status {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .status.info {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .card-title {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    .card-text {
+      text-align: center;
+    }
+
+    .card-home {
+      align-items: center;
+      min-height: 200px;
+      width: fit-content;
+      margin: 0 auto;
+    }
   </style>
 </head>
+
 <body>
   <header>
     <div>
-      <strong id="welcomeText">Autoexam</strong>
+      <strong id="welcomeText" style="align-self: center;"></strong>
     </div>
-    <nav>
-      <a href="#" onclick="navigate('/')">Главная</a>
-      <a href="#" onclick="navigate('/login')">Вход</a>
-      <a href="#" onclick="navigate('/register')">Регистрация</a>
-      <a href="#" onclick="navigate('/dashboard')">Кабинет</a>
-      <a href="#" onclick="logout()">Выход</a>
-    </nav>
+    <div id="auth-status"></div>
   </header>
 
   <div class="container">
     <div id="status" class="status info" style="display:none"></div>
 
-    <section id="page-home" class="card">
-      <h2>Autoexam</h2>
-      <p>Учебный фронтенд для микросервисов auth/profile/finance/notification.</p>
+    <section id="page-home" class="card card-home">
+      <h2 class="card-title">Учёт финансов</h2>
+      <p class="card-text">Оптимизируй расходы и увеличь доходы.</p>
       <div class="tabs">
         <button class="btn" onclick="navigate('/login')">Войти</button>
         <button class="btn secondary" onclick="navigate('/register')">Регистрация</button>
       </div>
     </section>
 
-    <section id="page-login" class="card" style="display:none">
+    <section id="page-login" class="card card-home" style="display:none">
       <h2 id="loginTitle">Вход</h2>
       <label>Имя пользователя</label>
       <input id="login-username" placeholder="username">
@@ -97,7 +170,7 @@
       <button class="btn" onclick="doLogin()">Войти</button>
     </section>
 
-    <section id="page-register" class="card" style="display:none">
+    <section id="page-register" class="card card-home" style="display:none">
       <h2 id="registerTitle">Регистрация</h2>
       <label>Имя пользователя</label>
       <input id="reg-username" placeholder="username">
@@ -111,16 +184,12 @@
         <div class="card">
           <h3>Профиль</h3>
           <p><strong>Пользователь:</strong> <span id="profile-username">—</span></p>
-          <p><strong>Имя:</strong> <span id="profile-fullname">—</span></p>
-          <p><strong>Email:</strong> <span id="profile-email">—</span></p>
-          <button class="btn" onclick="refreshProfile()">Обновить профиль</button>
         </div>
         <div class="card">
           <h3>Сводка</h3>
           <p><strong>Доходы:</strong> <span id="sum-income">0</span></p>
           <p><strong>Расходы:</strong> <span id="sum-expense">0</span></p>
           <p><strong>Баланс:</strong> <span id="sum-balance">0</span></p>
-          <button class="btn" onclick="refreshSummary()">Обновить сводку</button>
         </div>
       </div>
 
@@ -147,53 +216,99 @@
             <input id="tx-date" type="datetime-local">
           </div>
         </div>
-        <label>Описание</label>
-        <input id="tx-desc" placeholder="Комментарий (опционально)">
         <button class="btn" onclick="createTransaction()">Сохранить</button>
       </div>
 
       <div class="card">
-        <h3>Динамика (последние 30 дней)</h3>
+        <h3>Накопительные суммы (30 дней)</h3>
         <canvas id="chart-days" height="120"></canvas>
+      </div>
+
+      <div class="card">
+        <h3>Расходы по категориям</h3>
+        <div style="max-width:480px;margin:auto;">
+          <canvas id="chart-categories" height="200"></canvas>
+        </div>
+        <p id="chart-categories-empty" style="display:none; text-align:center;">Недостаточно данных для построения
+          диаграммы</p>
       </div>
     </section>
   </div>
 
   <script>
-    // Храним токен в localStorage
     const TOKEN_KEY = "autoexam_token";
 
-    // Получение токена из хранилища
     function getToken() { return localStorage.getItem(TOKEN_KEY); }
     function setToken(token) { localStorage.setItem(TOKEN_KEY, token); }
     function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 
-    // Простая маршрутизация по hash/переходам
+    function resetClientState() {
+      const ids = ["login-username", "login-password", "reg-username", "reg-password", "tx-category", "tx-amount", "tx-date"];
+      ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+      const typeEl = document.getElementById("tx-type"); if (typeEl) typeEl.value = "income";
+      document.getElementById("profile-username").textContent = "—";
+      document.getElementById("sum-income").textContent = "0";
+      document.getElementById("sum-expense").textContent = "0";
+      document.getElementById("sum-balance").textContent = "0";
+      if (window.chartDaysRef) { window.chartDaysRef.destroy(); window.chartDaysRef = null; }
+      if (window.chartCatRef) { window.chartCatRef.destroy(); window.chartCatRef = null; }
+      const ctxLine = document.getElementById("chart-days").getContext("2d");
+      window.chartDaysRef = new Chart(ctxLine, { type: "line", data: { labels: [], datasets: [] }, options: { responsive: true } });
+      const pie = document.getElementById("chart-categories");
+      if (pie) pie.style.display = "none";
+      const empty = document.getElementById("chart-categories-empty");
+      if (empty) { empty.style.display = "block"; empty.textContent = "Недостаточно данных для построения диаграммы"; }
+    }
+
     function navigate(path) {
       window.location.hash = path;
       renderRoute();
+      renderAuthStatus();
     }
 
-    // Отображение статуса/ошибок
-    function showStatus(msg, type="info") {
+    function showStatus(msg, type = "info") {
       const el = document.getElementById("status");
       el.textContent = msg;
       el.className = `status ${type}`;
       el.style.display = "block";
-      if (type === "info") setTimeout(() => { el.style.display = "none"; }, 4000);
+      if (type === "info") {
+        setTimeout(() => { el.style.display = "none"; }, 4000);
+      }
     }
 
-    // Универсальный fetch к backend-прокси с автоматической авторизацией
+    function renderAuthStatus() {
+      const container = document.getElementById("auth-status");
+      const token = getToken();
+      if (token) {
+        container.innerHTML = '<a href="#" onclick="logout(); return false;">Выход</a>';
+      } else {
+        container.textContent = "Вы пока не вошли в аккаунт";
+      }
+    }
+
     async function apiFetch(url, options = {}) {
       const token = getToken();
       options.headers = options.headers || {};
       if (token) options.headers["Authorization"] = `Bearer ${token}`;
-      options.headers["Content-Type"] = "application/json";
+      options.headers["Content-Type"] = options.headers["Content-Type"] || "application/json";
       const resp = await fetch(url, options);
       let data = null;
       try { data = await resp.json(); } catch (e) { data = null; }
       if (!resp.ok) {
-        const detail = data && data.detail ? data.detail : resp.statusText;
+        let detail = `${resp.status} ${resp.statusText}`;
+        if (data && data.detail) {
+          if (Array.isArray(data.detail)) {
+            detail = data.detail.map(d => {
+              const loc = d.loc ? d.loc.join('.') : '';
+              const msg = d.msg || d.message || '';
+              return `${loc}: ${msg}`.trim();
+            }).join('; ');
+          } else if (typeof data.detail === 'string') {
+            detail = data.detail;
+          } else if (typeof data.detail === 'object') {
+            detail = JSON.stringify(data.detail);
+          }
+        }
         throw new Error(detail);
       }
       return data;
@@ -207,7 +322,10 @@
           method: "POST",
           body: JSON.stringify({ username, password })
         });
+        clearToken();
+        resetClientState();
         setToken(data.access_token);
+        renderAuthStatus();
         showStatus("Вход выполнен, переходим в кабинет");
         navigate("/dashboard");
         await loadDashboard();
@@ -224,7 +342,7 @@
           method: "POST",
           body: JSON.stringify({ username, password })
         });
-        showStatus("Регистрация успешна, теперь войдите");
+        showStatus("Регистрация успешна, выполните вход");
         navigate("/login");
       } catch (err) {
         showStatus("Ошибка регистрации: " + err.message, "error");
@@ -235,8 +353,6 @@
       try {
         const data = await apiFetch("/api/profile/me");
         document.getElementById("profile-username").textContent = data.username || "—";
-        document.getElementById("profile-fullname").textContent = data.full_name || "—";
-        document.getElementById("profile-email").textContent = data.email || "—";
       } catch (err) {
         showStatus("Ошибка профиля: " + err.message, "error");
       }
@@ -256,12 +372,45 @@
     async function refreshChart() {
       try {
         const data = await apiFetch("/api/finance/stats/by-day?days=30");
-        const labels = data.items.map(i => new Date(i.date).toLocaleDateString());
-        const incomes = data.items.map(i => parseFloat(i.income));
-        const expenses = data.items.map(i => parseFloat(i.expense));
-        renderChart(labels, incomes, expenses);
+        const items = (data.items || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+        const labels = items.map(i => new Date(i.date).toLocaleDateString());
+        let cumIncome = 0, cumExpense = 0;
+        const incomes = [], expenses = [];
+        for (const i of items) {
+          cumIncome += parseFloat(i.income || 0);
+          cumExpense += parseFloat(i.expense || 0);
+          incomes.push(cumIncome);
+          expenses.push(cumExpense);
+        }
+        renderLineChart(labels, incomes, expenses);
       } catch (err) {
         showStatus("Ошибка графика: " + err.message, "error");
+      }
+
+      try {
+        const tx = await apiFetch("/api/finance/transactions");
+        const expenseByCat = {};
+        (tx.items || []).forEach(t => {
+          if (t.type === 'expense') {
+            const cat = t.category || 'без категории';
+            expenseByCat[cat] = (expenseByCat[cat] || 0) + parseFloat(t.amount || 0);
+          }
+        });
+        const labelsCat = Object.keys(expenseByCat);
+        if (labelsCat.length === 0) {
+          document.getElementById("chart-categories").style.display = "none";
+          document.getElementById("chart-categories-empty").style.display = "block";
+        } else {
+          document.getElementById("chart-categories").style.display = "block";
+          document.getElementById("chart-categories-empty").style.display = "none";
+          renderPieChart(labelsCat, Object.values(expenseByCat));
+        }
+      } catch (err) {
+        document.getElementById("chart-categories").style.display = "none";
+        const empty = document.getElementById("chart-categories-empty");
+        empty.style.display = "block";
+        empty.textContent = "Недостаточно данных для построения диаграммы";
+        console.warn("pie chart error", err);
       }
     }
 
@@ -270,7 +419,6 @@
         type: document.getElementById("tx-type").value,
         amount: document.getElementById("tx-amount").value,
         category: document.getElementById("tx-category").value || "general",
-        description: document.getElementById("tx-desc").value || null,
         occurred_at: document.getElementById("tx-date").value
           ? new Date(document.getElementById("tx-date").value).toISOString()
           : new Date().toISOString()
@@ -290,35 +438,39 @@
 
     function logout() {
       clearToken();
+      resetClientState();
+      renderAuthStatus();
       showStatus("Вы вышли из аккаунта");
-      navigate("/login");
+      navigate("/");
     }
 
-    function renderChart(labels, incomes, expenses) {
+    function renderLineChart(labels, incomes, expenses) {
       const ctx = document.getElementById("chart-days").getContext("2d");
-      if (window.chartRef) { window.chartRef.destroy(); }
-      window.chartRef = new Chart(ctx, {
+      if (window.chartDaysRef) { window.chartDaysRef.destroy(); }
+      window.chartDaysRef = new Chart(ctx, {
         type: "line",
         data: {
           labels,
           datasets: [
-            { label: "Доходы", data: incomes, borderColor: "#22c55e", fill: false },
-            { label: "Расходы", data: expenses, borderColor: "#ef4444", fill: false }
+            { label: "Накопленные доходы", data: incomes, borderColor: "#22c55e", fill: false },
+            { label: "Накопленные расходы", data: expenses, borderColor: "#ef4444", fill: false }
           ]
         },
         options: { responsive: true, tension: 0.2 }
       });
     }
 
-    async function loadDashboard() {
-      if (!getToken()) {
-        showStatus("Нужно войти", "error");
-        navigate("/login");
-        return;
-      }
-      await refreshProfile();
-      await refreshSummary();
-      await refreshChart();
+    function renderPieChart(labels, data) {
+      const ctx = document.getElementById("chart-categories").getContext("2d");
+      if (window.chartCatRef) { window.chartCatRef.destroy(); }
+      window.chartCatRef = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels,
+          datasets: [{ data, backgroundColor: ["#f87171", "#fb923c", "#fbbf24", "#34d399", "#60a5fa", "#a78bfa", "#f472b6"] }]
+        },
+        options: { responsive: true }
+      });
     }
 
     function renderRoute() {
@@ -336,6 +488,47 @@
       }
     }
 
+    async function loadDashboard() {
+      if (!getToken()) {
+        showStatus("Нужно войти", "error");
+        navigate("/login");
+        return;
+      }
+      try {
+        await refreshProfile();
+      } catch (err) {
+        const msg = err && err.message ? String(err.message) : "";
+        if (msg.includes("401") || msg.includes("403")) {
+          showStatus("Сессия истекла, войдите снова", "error");
+          logout();
+          return;
+        }
+        showStatus("Не удалось загрузить профиль: " + msg, "error");
+      }
+      try {
+        await refreshSummary();
+      } catch (err) {
+        const msg = err && err.message ? String(err.message) : "";
+        if (msg.includes("401") || msg.includes("403")) {
+          showStatus("Сессия истекла, войдите снова", "error");
+          logout();
+          return;
+        }
+        showStatus("Не удалось загрузить сводку: " + msg, "error");
+      }
+      try {
+        await refreshChart();
+      } catch (err) {
+        const msg = err && err.message ? String(err.message) : "";
+        if (msg.includes("401") || msg.includes("403")) {
+          showStatus("Сессия истекла, войдите снова", "error");
+          logout();
+          return;
+        }
+        showStatus("Не удалось загрузить графики: " + msg, "error");
+      }
+    }
+
     async function loadUiTexts() {
       try {
         const cfg = await fetch("/ui-config.json").then(r => r.json());
@@ -347,11 +540,13 @@
       }
     }
 
-    window.addEventListener("hashchange", renderRoute);
+    window.addEventListener("hashchange", () => { renderRoute(); renderAuthStatus(); });
     window.addEventListener("DOMContentLoaded", () => {
       loadUiTexts();
       renderRoute();
+      renderAuthStatus();
     });
   </script>
 </body>
+
 </html>

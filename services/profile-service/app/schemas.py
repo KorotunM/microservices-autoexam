@@ -1,4 +1,4 @@
-"""Схемы запросов/ответов профиля."""
+﻿"""Схемы запросов/ответов профиля."""
 from datetime import datetime
 from typing import Optional
 
@@ -9,6 +9,7 @@ class ProfileResponse(BaseModel):
     """Ответ с данными профиля."""
 
     user_id: str
+    username: str
     full_name: Optional[str] = None
     email: Optional[EmailStr] = None
     created_at: datetime

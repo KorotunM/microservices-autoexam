@@ -1,4 +1,4 @@
-"""Простой фронтенд-сервер на FastAPI со SPA и прокси к внутренним сервисам."""
+﻿"""Простой фронтенд-сервер на FastAPI со SPA и прокси к внутренним сервисам."""
 from __future__ import annotations
 
 import logging
@@ -13,7 +13,16 @@ from fastapi.staticfiles import StaticFiles
 from .config import get_settings
 
 settings = get_settings()
-logging.basicConfig(level=settings.host, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
+
+def _resolve_log_level(value: str) -> int:
+    """Возвращает числовой уровень логирования, по умолчанию INFO."""
+    level_name = (value or "INFO").upper()
+    return logging._nameToLevel.get(level_name, logging.INFO)
+
+logging.basicConfig(
+    level=_resolve_log_level(settings.log_level),
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 logger = logging.getLogger(settings.app_name)
 
 app = FastAPI(title="Web Frontend", description="SPA для Autoexam", version="0.1.0")

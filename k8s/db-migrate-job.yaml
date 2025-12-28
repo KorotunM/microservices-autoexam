@@ -9,7 +9,6 @@ metadata:
     tier: platform
     version: v1
 spec:
-  # Одна попытка выполнения миграций Alembic
   backoffLimit: 2
   template:
     metadata:
@@ -22,7 +21,6 @@ spec:
       restartPolicy: Never
       containers:
         - name: db-migrate
-          # Используем образ auth-service: содержит alembic, каталог db/ и alembic.ini
           image: autoexam/auth-service:latest
           imagePullPolicy: IfNotPresent
           env:
@@ -31,5 +29,8 @@ spec:
                 secretKeyRef:
                   name: app-secret
                   key: DATABASE_URL
+            - name: PYTHONPATH
+              value: "/app"
+
           command: ["alembic"]
           args: ["upgrade", "head"]

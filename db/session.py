@@ -1,4 +1,4 @@
-"""Создание AsyncEngine и фабрики сессий для сервисов."""
+﻿"""Настройка AsyncEngine и фабрики сессий для сервисов."""
 import os
 from typing import AsyncGenerator
 
@@ -15,10 +15,6 @@ SessionFactory = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """
-    Зависимость FastAPI для получения сессии.
-
-    Сессия закрывается автоматически после завершения запроса.
-    """
+    """Отдает сессию БД и автоматически возвращает соединение в пул."""
     async with SessionFactory() as session:
         yield session

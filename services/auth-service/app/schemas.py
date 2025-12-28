@@ -1,4 +1,4 @@
-"""Схемы запросов/ответов для auth-service."""
+﻿"""Схемы запросов/ответов для auth-service."""
 from pydantic import BaseModel, Field
 
 
@@ -6,7 +6,7 @@ class RegisterRequest(BaseModel):
     """Тело запроса регистрации."""
 
     username: str = Field(..., min_length=3, max_length=64)
-    password: str = Field(..., min_length=6, max_length=128)
+    password: str = Field(..., min_length=4, max_length=64, description="Пароль от 4 до 64 символов")
 
 
 class RegisterResponse(BaseModel):
@@ -20,7 +20,7 @@ class LoginRequest(BaseModel):
     """Тело запроса логина."""
 
     username: str = Field(..., min_length=3, max_length=64)
-    password: str = Field(..., min_length=6, max_length=128)
+    password: str = Field(..., min_length=4, max_length=64, description="Пароль от 4 до 64 символов")
 
 
 class TokenResponse(BaseModel):

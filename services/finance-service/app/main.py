@@ -177,23 +177,33 @@ async def stats_summary(
     session: AsyncSession = Depends(get_db_session),
 ) -> SummaryResponse:
     """Возвращает агрегаты: сумма доходов, расходов и баланс."""
-    stmt = (
-        select(
-            func.coalesce(
-                func.sum(case((Transaction.type == "income", Transaction.amount))), 0
-            ).label("income"),
-            func.coalesce(
-                func.sum(case((Transaction.type == "expense", Transaction.amount))), 0
-            ).label("expense"),
+
+    try:
+        stmt = (
+            select(
+                func.coalesce(
+                    func.sum(case((Transaction.type == "income", Transaction.amount))), 0
+                ).label("income"),
+                func.coalesce(
+                    func.sum(case((Transaction.type == "expense", Transaction.amount))), 0
+                ).label("expense"),
+            )
+            .where(Transaction.user_id == current_user["user_id"])
         )
-        .where(Transaction.user_id == current_user["user_id"])
-    )
-    result = await session.execute(stmt)
-    income, expense = result.one()
-    income = Decimal(income or 0)
-    expense = Decimal(expense or 0)
-    balance = income - expense
-    return SummaryResponse(total_income=income, total_expense=expense, balance=balance)
+        result = await session.execute(stmt)
+        income, expense = result.one()
+        income = Decimal(income or 0)
+        expense = Decimal(expense or 0)
+        balance = income - expense
+        return SummaryResponse(total_income=income, total_expense=expense, balance=balance)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("Ошибка /finance/stats/summary", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Не удалось загрузить сводку",
+        ) from exc
 
 
 @app.get("/finance/stats/by-category", response_model=CategoryStatsResponse)
@@ -229,32 +239,42 @@ async def stats_by_day(
 
     Использует агрегирование по дате.
     """
-    cutoff = datetime.utcnow() - timedelta(days=days)
-    stmt = (
-        select(
-            func.date(Transaction.occurred_at).label("day"),
-            func.sum(
-                case((Transaction.type == "income", Transaction.amount), else_=0)
-            ).label("income"),
-            func.sum(
-                case((Transaction.type == "expense", Transaction.amount), else_=0)
-            ).label("expense"),
-        )
-        .where(
-            Transaction.user_id == current_user["user_id"],
-            Transaction.occurred_at >= cutoff,
-        )
-        .group_by(func.date(Transaction.occurred_at))
-        .order_by(func.date(Transaction.occurred_at))
-    )
-    rows = (await session.execute(stmt)).all()
-    items = []
-    for row in rows:
-        items.append(
-            DayStatsItem(
-                date=datetime.combine(row.day, datetime.min.time()),
-                income=Decimal(row.income or 0),
-                expense=Decimal(row.expense or 0),
+
+    try:
+        cutoff = datetime.utcnow() - timedelta(days=days)
+        stmt = (
+            select(
+                func.date(Transaction.occurred_at).label("day"),
+                func.sum(
+                    case((Transaction.type == "income", Transaction.amount), else_=0)
+                ).label("income"),
+                func.sum(
+                    case((Transaction.type == "expense", Transaction.amount), else_=0)
+                ).label("expense"),
             )
+            .where(
+                Transaction.user_id == current_user["user_id"],
+                Transaction.occurred_at >= cutoff,
+            )
+            .group_by(func.date(Transaction.occurred_at))
+            .order_by(func.date(Transaction.occurred_at))
         )
-    return DayStatsResponse(items=items)
+        rows = (await session.execute(stmt)).all()
+        items = []
+        for row in rows:
+            items.append(
+                DayStatsItem(
+                    date=datetime.combine(row.day, datetime.min.time()),
+                    income=Decimal(row.income or 0),
+                    expense=Decimal(row.expense or 0),
+                )
+            )
+        return DayStatsResponse(items=items)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        logger.error("Ошибка /finance/stats/by-day", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Не удалось загрузить статистику по дням",
+        ) from exc

@@ -65,6 +65,11 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: LOG_LEVEL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: JWT_SECRET
             - name: AUTH_VALIDATE_URL
               valueFrom:
                 configMapKeyRef:

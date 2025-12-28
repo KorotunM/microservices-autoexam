@@ -1,8 +1,9 @@
-"""Утилиты для хеширования паролей и выпуска JWT."""
+﻿"""Утилиты для хеширования паролей и выпуска JWT."""
 import time
 from typing import Any, Dict
 
 import jwt
+from fastapi import HTTPException, status
 from passlib.context import CryptContext
 
 from .config import get_settings
@@ -11,7 +12,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
-    """Возвращает безопасный хеш пароля (bcrypt)."""
+    """Возвращает безопасный хеш пароля (bcrypt) с проверкой длины."""
+    # bcrypt ограничивает длину пароля 72 байт, поэтому проверяем сами
+    if len(password.encode("utf-8")) > 72:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Пароль слишком длинный",
+        )
     return pwd_context.hash(password)
 
 

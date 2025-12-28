@@ -10,5 +10,5 @@ metadata:
     version: v1
 data:
   LOGIN_TITLE: "Вход в систему"
-  REGISTER_TITLE: "Создайте аккаунт"
-  WELCOME_MESSAGE: "Добро пожаловать в Autoexam"
+  REGISTER_TITLE: "Создайте аккаунт, ваше финансовое будущее начинается здесь"
+  WELCOME_MESSAGE: "Добро пожаловать в Мои Финансы"

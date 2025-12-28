@@ -39,6 +39,15 @@ docker build -t autoexam/notification-service:latest -f services/notification-se
 docker build -t autoexam/web-frontend:latest -f web-frontend/Dockerfile .
 ```
 
+Если надо пересобрать образ:
+```bash
+kubectl rollout restart -n user-platform-exam deploy/auth-service
+kubectl rollout restart -n user-platform-exam deploy/profile-service
+kubectl rollout restart -n user-platform-exam deploy/finance-service
+kubectl rollout restart -n user-platform-exam deploy/notification-service
+kubectl rollout restart -n user-platform-exam deploy/web-frontend
+```
+
 ## Запуск в Kubernetes (Docker Desktop)
 1. Сначала создать namespace:
    ```bash
@@ -60,10 +69,17 @@ docker build -t autoexam/web-frontend:latest -f web-frontend/Dockerfile .
    ```bash
    kubectl delete -f k8s/db-migrate-job.yaml
    ```
-5. Проверить ресурсы:
+5. Проверить, что все сервисы готовы:
    ```bash
-   kubectl get all -n user-platform-exam
+   kubectl get pods -n user-platform-exam
+   kubectl get svc -n user-platform-exam
    ```
+
+5.2. Посмотреть логи
+   ```bash
+   kubectl logs -n user-platform-exam deploy/profile-service -f   
+   ```
+
 6. Открыть фронтенд в браузере по NodePort:
    - Docker Desktop: `http://localhost:30080`
    - Или `http://<node-ip>:30080`

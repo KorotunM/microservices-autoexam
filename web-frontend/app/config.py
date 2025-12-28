@@ -1,8 +1,7 @@
-"""Настройки фронтенд-сервера и текстов интерфейса."""
+﻿"""Настройки фронтенд-сервера и текстов интерфейса."""
 from functools import lru_cache
-
-from pydantic import BaseSettings, Field
-
+from pydantic_settings import BaseSettings
+from pydantic import Field
 
 class Settings(BaseSettings):
     """Базовые настройки FastAPI фронта и адресов внутренних сервисов."""
@@ -16,9 +15,12 @@ class Settings(BaseSettings):
     profile_base_url: str = Field("http://profile-service:8002", env="PROFILE_BASE_URL")
     finance_base_url: str = Field("http://finance-service:8003", env="FINANCE_BASE_URL")
 
+    # Уровень логирования приложения
+    log_level: str = Field("INFO", env="LOG_LEVEL")
+
     # Тексты интерфейса (могут приходить из ConfigMap)
     login_title: str = Field("Вход в систему", env="LOGIN_TITLE")
-    register_title: str = Field("Регистрация", env="REGISTER_TITLE")
+    register_title: str = Field("Создайте аккаунт", env="REGISTER_TITLE")
     welcome_message: str = Field("Добро пожаловать в Autoexam", env="WELCOME_MESSAGE")
 
     class Config:
@@ -28,5 +30,5 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Возвращает кэшированные настройки."""
+    """Возвращает кэшированные настройки приложения."""
     return Settings()

@@ -1,4 +1,4 @@
-"""Точка входа сервиса профилей."""
+﻿"""Точка входа сервиса профилей."""
 import logging
 from typing import Dict
 
@@ -64,23 +64,35 @@ async def get_my_profile(
 
     Если профиля нет — создаёт пустой профиль и возвращает его.
     """
-    stmt = select(Profile).where(Profile.user_id == current_user["user_id"])
-    result = await session.execute(stmt)
-    profile: Profile | None = result.scalar_one_or_none()
+    try:
+        stmt = select(Profile).where(Profile.user_id == current_user["user_id"])
+        result = await session.execute(stmt)
+        profile: Profile | None = result.scalar_one_or_none()
 
-    if profile is None:
-        profile = Profile(user_id=current_user["user_id"])
-        session.add(profile)
-        await session.commit()
-        await session.refresh(profile)
+        if profile is None:
+            profile = Profile(user_id=current_user["user_id"])
+            session.add(profile)
+            await session.commit()
+            await session.refresh(profile)
 
-    return ProfileResponse(
-        user_id=str(profile.user_id),
-        full_name=profile.full_name,
-        email=profile.email,
-        created_at=profile.created_at,
-        updated_at=profile.updated_at,
-    )
+        return ProfileResponse(
+            user_id=str(profile.user_id),
+            username=current_user["username"],
+            full_name=profile.full_name,
+            email=profile.email,
+            created_at=profile.created_at,
+            updated_at=profile.updated_at,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Логируем неожиданные ошибки для быстрой диагностики 500
+        logger.error("Ошибка при получении профиля пользователя", exc_info=True)
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Не удалось загрузить профиль",
+        ) from exc
 
 
 @app.put("/profile/me", response_model=ProfileResponse)
@@ -123,12 +135,16 @@ async def update_my_profile(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="email уже используется",
             )
+        except Exception:
+            await session.rollback()
+            raise
         # перечитываем профиль после обновления
         result = await session.execute(stmt)
         profile = result.scalar_one()
 
     return ProfileResponse(
         user_id=str(profile.user_id),
+        username=current_user["username"],
         full_name=profile.full_name,
         email=profile.email,
         created_at=profile.created_at,
