@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: profile-service
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: profile
+    tier: backend
+    version: v1
+spec:
+  type: ClusterIP
+  selector:
+    app: autoexam
+    component: profile
+  ports:
+    - port: 8002
+      targetPort: 8002
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: profile
+    tier: backend
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autoexam
+      component: profile
+  template:
+    metadata:
+      labels:
+        app: autoexam
+        component: profile
+        tier: backend
+        version: v1
+    spec:
+      containers:
+        - name: profile-service
+          image: autoexam/profile-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8002
+          env:
+            - name: APP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_HOST
+            - name: APP_PORT
+              value: "8002"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DATABASE_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOG_LEVEL
+            - name: AUTH_VALIDATE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: AUTH_VALIDATE_URL
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8002
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8002
+            initialDelaySeconds: 30
+            periodSeconds: 10

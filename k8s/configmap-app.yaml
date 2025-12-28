@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: config
+    tier: platform
+    version: v1
+data:
+  APP_HOST: "0.0.0.0"
+  LOG_LEVEL: "INFO"
+  JWT_TTL_SECONDS: "3600"
+  AUTH_VALIDATE_URL: "http://auth-service:8001/auth/validate"
+  NOTIFICATION_URL: "http://notification-service:8004/notify/log"
+  AUTH_BASE_URL: "http://auth-service:8001"
+  PROFILE_BASE_URL: "http://profile-service:8002"
+  FINANCE_BASE_URL: "http://finance-service:8003"

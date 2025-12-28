@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autoexam UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      font-family: "Montserrat", "Segoe UI", sans-serif;
+      color: #0f172a;
+      background: #f8fafc;
+    }
+    body { margin: 0; }
+    header {
+      background: linear-gradient(135deg, #0f172a, #1d4ed8);
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+    a { color: #1d4ed8; text-decoration: none; font-weight: 600; }
+    .container { max-width: 960px; margin: 24px auto; padding: 0 16px 48px; }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      margin-bottom: 16px;
+    }
+    .tabs { display: flex; gap: 10px; margin-top: 8px; }
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      background: #1d4ed8;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn.secondary { background: #0f172a; }
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 6px 0 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+    }
+    label { font-weight: 600; font-size: 14px; }
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .status { padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; }
+    .status.info { background: #e0f2fe; color: #075985; }
+    .status.error { background: #fee2e2; color: #991b1b; }
+    nav a { color: #fff; margin-left: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong id="welcomeText">Autoexam</strong>
+    </div>
+    <nav>
+      <a href="#" onclick="navigate('/')">Главная</a>
+      <a href="#" onclick="navigate('/login')">Вход</a>
+      <a href="#" onclick="navigate('/register')">Регистрация</a>
+      <a href="#" onclick="navigate('/dashboard')">Кабинет</a>
+      <a href="#" onclick="logout()">Выход</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <div id="status" class="status info" style="display:none"></div>
+
+    <section id="page-home" class="card">
+      <h2>Autoexam</h2>
+      <p>Учебный фронтенд для микросервисов auth/profile/finance/notification.</p>
+      <div class="tabs">
+        <button class="btn" onclick="navigate('/login')">Войти</button>
+        <button class="btn secondary" onclick="navigate('/register')">Регистрация</button>
+      </div>
+    </section>
+
+    <section id="page-login" class="card" style="display:none">
+      <h2 id="loginTitle">Вход</h2>
+      <label>Имя пользователя</label>
+      <input id="login-username" placeholder="username">
+      <label>Пароль</label>
+      <input id="login-password" type="password" placeholder="пароль">
+      <button class="btn" onclick="doLogin()">Войти</button>
+    </section>
+
+    <section id="page-register" class="card" style="display:none">
+      <h2 id="registerTitle">Регистрация</h2>
+      <label>Имя пользователя</label>
+      <input id="reg-username" placeholder="username">
+      <label>Пароль</label>
+      <input id="reg-password" type="password" placeholder="пароль (мин. 6)">
+      <button class="btn" onclick="doRegister()">Создать аккаунт</button>
+    </section>
+
+    <section id="page-dashboard" style="display:none">
+      <div class="grid two">
+        <div class="card">
+          <h3>Профиль</h3>
+          <p><strong>Пользователь:</strong> <span id="profile-username">—</span></p>
+          <p><strong>Имя:</strong> <span id="profile-fullname">—</span></p>
+          <p><strong>Email:</strong> <span id="profile-email">—</span></p>
+          <button class="btn" onclick="refreshProfile()">Обновить профиль</button>
+        </div>
+        <div class="card">
+          <h3>Сводка</h3>
+          <p><strong>Доходы:</strong> <span id="sum-income">0</span></p>
+          <p><strong>Расходы:</strong> <span id="sum-expense">0</span></p>
+          <p><strong>Баланс:</strong> <span id="sum-balance">0</span></p>
+          <button class="btn" onclick="refreshSummary()">Обновить сводку</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Добавить операцию</h3>
+        <div class="grid two">
+          <div>
+            <label>Тип</label>
+            <select id="tx-type">
+              <option value="income">Доход</option>
+              <option value="expense">Расход</option>
+            </select>
+          </div>
+          <div>
+            <label>Категория</label>
+            <input id="tx-category" placeholder="Категория">
+          </div>
+          <div>
+            <label>Сумма</label>
+            <input id="tx-amount" type="number" step="0.01" placeholder="0.00">
+          </div>
+          <div>
+            <label>Дата операции</label>
+            <input id="tx-date" type="datetime-local">
+          </div>
+        </div>
+        <label>Описание</label>
+        <input id="tx-desc" placeholder="Комментарий (опционально)">
+        <button class="btn" onclick="createTransaction()">Сохранить</button>
+      </div>
+
+      <div class="card">
+        <h3>Динамика (последние 30 дней)</h3>
+        <canvas id="chart-days" height="120"></canvas>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Храним токен в localStorage
+    const TOKEN_KEY = "autoexam_token";
+
+    // Получение токена из хранилища
+    function getToken() { return localStorage.getItem(TOKEN_KEY); }
+    function setToken(token) { localStorage.setItem(TOKEN_KEY, token); }
+    function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+    // Простая маршрутизация по hash/переходам
+    function navigate(path) {
+      window.location.hash = path;
+      renderRoute();
+    }
+
+    // Отображение статуса/ошибок
+    function showStatus(msg, type="info") {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = `status ${type}`;
+      el.style.display = "block";
+      if (type === "info") setTimeout(() => { el.style.display = "none"; }, 4000);
+    }
+
+    // Универсальный fetch к backend-прокси с автоматической авторизацией
+    async function apiFetch(url, options = {}) {
+      const token = getToken();
+      options.headers = options.headers || {};
+      if (token) options.headers["Authorization"] = `Bearer ${token}`;
+      options.headers["Content-Type"] = "application/json";
+      const resp = await fetch(url, options);
+      let data = null;
+      try { data = await resp.json(); } catch (e) { data = null; }
+      if (!resp.ok) {
+        const detail = data && data.detail ? data.detail : resp.statusText;
+        throw new Error(detail);
+      }
+      return data;
+    }
+
+    async function doLogin() {
+      const username = document.getElementById("login-username").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+      try {
+        const data = await apiFetch("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ username, password })
+        });
+        setToken(data.access_token);
+        showStatus("Вход выполнен, переходим в кабинет");
+        navigate("/dashboard");
+        await loadDashboard();
+      } catch (err) {
+        showStatus("Ошибка входа: " + err.message, "error");
+      }
+    }
+
+    async function doRegister() {
+      const username = document.getElementById("reg-username").value.trim();
+      const password = document.getElementById("reg-password").value.trim();
+      try {
+        await apiFetch("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify({ username, password })
+        });
+        showStatus("Регистрация успешна, теперь войдите");
+        navigate("/login");
+      } catch (err) {
+        showStatus("Ошибка регистрации: " + err.message, "error");
+      }
+    }
+
+    async function refreshProfile() {
+      try {
+        const data = await apiFetch("/api/profile/me");
+        document.getElementById("profile-username").textContent = data.username || "—";
+        document.getElementById("profile-fullname").textContent = data.full_name || "—";
+        document.getElementById("profile-email").textContent = data.email || "—";
+      } catch (err) {
+        showStatus("Ошибка профиля: " + err.message, "error");
+      }
+    }
+
+    async function refreshSummary() {
+      try {
+        const data = await apiFetch("/api/finance/stats/summary");
+        document.getElementById("sum-income").textContent = data.total_income;
+        document.getElementById("sum-expense").textContent = data.total_expense;
+        document.getElementById("sum-balance").textContent = data.balance;
+      } catch (err) {
+        showStatus("Ошибка сводки: " + err.message, "error");
+      }
+    }
+
+    async function refreshChart() {
+      try {
+        const data = await apiFetch("/api/finance/stats/by-day?days=30");
+        const labels = data.items.map(i => new Date(i.date).toLocaleDateString());
+        const incomes = data.items.map(i => parseFloat(i.income));
+        const expenses = data.items.map(i => parseFloat(i.expense));
+        renderChart(labels, incomes, expenses);
+      } catch (err) {
+        showStatus("Ошибка графика: " + err.message, "error");
+      }
+    }
+
+    async function createTransaction() {
+      const payload = {
+        type: document.getElementById("tx-type").value,
+        amount: document.getElementById("tx-amount").value,
+        category: document.getElementById("tx-category").value || "general",
+        description: document.getElementById("tx-desc").value || null,
+        occurred_at: document.getElementById("tx-date").value
+          ? new Date(document.getElementById("tx-date").value).toISOString()
+          : new Date().toISOString()
+      };
+      try {
+        await apiFetch("/api/finance/transactions", {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        showStatus("Операция добавлена");
+        await refreshSummary();
+        await refreshChart();
+      } catch (err) {
+        showStatus("Ошибка добавления: " + err.message, "error");
+      }
+    }
+
+    function logout() {
+      clearToken();
+      showStatus("Вы вышли из аккаунта");
+      navigate("/login");
+    }
+
+    function renderChart(labels, incomes, expenses) {
+      const ctx = document.getElementById("chart-days").getContext("2d");
+      if (window.chartRef) { window.chartRef.destroy(); }
+      window.chartRef = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [
+            { label: "Доходы", data: incomes, borderColor: "#22c55e", fill: false },
+            { label: "Расходы", data: expenses, borderColor: "#ef4444", fill: false }
+          ]
+        },
+        options: { responsive: true, tension: 0.2 }
+      });
+    }
+
+    async function loadDashboard() {
+      if (!getToken()) {
+        showStatus("Нужно войти", "error");
+        navigate("/login");
+        return;
+      }
+      await refreshProfile();
+      await refreshSummary();
+      await refreshChart();
+    }
+
+    function renderRoute() {
+      const hash = window.location.hash.replace("#", "") || "/";
+      document.querySelectorAll("section[id^='page-']").forEach(el => el.style.display = "none");
+      if (hash.startsWith("/login")) {
+        document.getElementById("page-login").style.display = "block";
+      } else if (hash.startsWith("/register")) {
+        document.getElementById("page-register").style.display = "block";
+      } else if (hash.startsWith("/dashboard")) {
+        document.getElementById("page-dashboard").style.display = "block";
+        loadDashboard();
+      } else {
+        document.getElementById("page-home").style.display = "block";
+      }
+    }
+
+    async function loadUiTexts() {
+      try {
+        const cfg = await fetch("/ui-config.json").then(r => r.json());
+        document.getElementById("loginTitle").textContent = cfg.login_title;
+        document.getElementById("registerTitle").textContent = cfg.register_title;
+        document.getElementById("welcomeText").textContent = cfg.welcome_message;
+      } catch (err) {
+        console.warn("Не удалось загрузить ui-config:", err);
+      }
+    }
+
+    window.addEventListener("hashchange", renderRoute);
+    window.addEventListener("DOMContentLoaded", () => {
+      loadUiTexts();
+      renderRoute();
+    });
+  </script>
+</body>
+</html>

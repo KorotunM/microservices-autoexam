@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: notification
+    tier: backend
+    version: v1
+spec:
+  type: ClusterIP
+  selector:
+    app: autoexam
+    component: notification
+  ports:
+    - port: 8004
+      targetPort: 8004
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: notification
+    tier: backend
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autoexam
+      component: notification
+  template:
+    metadata:
+      labels:
+        app: autoexam
+        component: notification
+        tier: backend
+        version: v1
+    spec:
+      containers:
+        - name: notification-service
+          image: autoexam/notification-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8004
+          env:
+            - name: APP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_HOST
+            - name: APP_PORT
+              value: "8004"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DATABASE_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOG_LEVEL
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8004
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8004
+            initialDelaySeconds: 30
+            periodSeconds: 10

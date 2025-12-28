@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: auth
+    tier: backend
+    version: v1
+spec:
+  type: ClusterIP
+  selector:
+    app: autoexam
+    component: auth
+  ports:
+    - port: 8001
+      targetPort: 8001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: auth
+    tier: backend
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: autoexam
+      component: auth
+  template:
+    metadata:
+      labels:
+        app: autoexam
+        component: auth
+        tier: backend
+        version: v1
+    spec:
+      containers:
+        - name: auth-service
+          image: autoexam/auth-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+          env:
+            - name: APP_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: APP_HOST
+            - name: APP_PORT
+              value: "8001"
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DATABASE_URL
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: LOG_LEVEL
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: JWT_SECRET
+            - name: JWT_TTL_SECONDS
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: JWT_TTL_SECONDS
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10

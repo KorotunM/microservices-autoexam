@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migrate
+  namespace: user-platform-exam
+  labels:
+    app: autoexam
+    component: db-migrate
+    tier: platform
+    version: v1
+spec:
+  # Одна попытка выполнения миграций Alembic
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: autoexam
+        component: db-migrate
+        tier: platform
+        version: v1
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: db-migrate
+          # Используем образ auth-service: содержит alembic, каталог db/ и alembic.ini
+          image: autoexam/auth-service:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: DATABASE_URL
+          command: ["alembic"]
+          args: ["upgrade", "head"]
