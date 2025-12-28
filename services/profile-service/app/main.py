@@ -26,19 +26,16 @@ app = FastAPI(
 
 @app.get("/health/live")
 async def health_live() -> Dict[str, str]:
-    """Эндпоинт для проверки, что процесс живой."""
     return {"status": "live"}
 
 
 @app.get("/health/ready")
 async def health_ready() -> Dict[str, str]:
-    """Эндпоинт для проверки готовности приложения."""
     return {"status": "ready"}
 
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    """Выводит информацию при старте сервиса."""
     logger.info(
         "Сервис %s запущен на %s:%s с БД %s",
         settings.app_name,
@@ -50,7 +47,6 @@ async def on_startup() -> None:
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    """Финализирует работу сервиса."""
     logger.info("Сервис %s завершает работу", settings.app_name)
 
 
@@ -59,11 +55,6 @@ async def get_my_profile(
     current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> ProfileResponse:
-    """
-    Возвращает профиль текущего пользователя.
-
-    Если профиля нет — создаёт пустой профиль и возвращает его.
-    """
     try:
         stmt = select(Profile).where(Profile.user_id == current_user["user_id"])
         result = await session.execute(stmt)
@@ -86,7 +77,6 @@ async def get_my_profile(
     except HTTPException:
         raise
     except Exception as exc:
-        # Логируем неожиданные ошибки для быстрой диагностики 500
         logger.error("Ошибка при получении профиля пользователя", exc_info=True)
         await session.rollback()
         raise HTTPException(
@@ -101,11 +91,6 @@ async def update_my_profile(
     current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_db_session),
 ) -> ProfileResponse:
-    """
-    Обновляет профиль текущего пользователя.
-
-    Возвращает обновлённые данные. Обрабатывает уникальность email.
-    """
     stmt = select(Profile).where(Profile.user_id == current_user["user_id"])
     result = await session.execute(stmt)
     profile: Profile | None = result.scalar_one_or_none()
@@ -138,7 +123,6 @@ async def update_my_profile(
         except Exception:
             await session.rollback()
             raise
-        # перечитываем профиль после обновления
         result = await session.execute(stmt)
         profile = result.scalar_one()
 

@@ -1,4 +1,3 @@
-"""Зависимости FastAPI: проверка JWT через auth-service и доступ к БД."""
 from typing import Annotated, Dict
 
 import httpx
@@ -13,7 +12,6 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 
 async def get_db_session() -> AsyncSession:
-    """Возвращает асинхронную сессию БД."""
     async for session in get_session():
         return session
 
@@ -21,11 +19,6 @@ async def get_db_session() -> AsyncSession:
 async def get_current_user(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)]
 ) -> Dict[str, str]:
-    """
-    Проверяет Bearer токен, вызывая auth-service /auth/validate.
-
-    Возвращает payload с user_id и username или 401.
-    """
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,5 +1,4 @@
-﻿"""Простой фронтенд-сервер на FastAPI со SPA и прокси к внутренним сервисам."""
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 from pathlib import Path
@@ -31,12 +30,10 @@ app.mount("/static", StaticFiles(directory=static_dir, html=True), name="static"
 
 
 def _frontend_index() -> FileResponse:
-    """Возвращает основной HTML (SPA) для всех маршрутов."""
     return FileResponse(static_dir / "index.html")
 
 
 def _auth_header(request: Request) -> Dict[str, str]:
-    """Извлекает Authorization из исходного запроса."""
     auth = request.headers.get("Authorization")
     return {"Authorization": auth} if auth else {}
 
@@ -48,11 +45,6 @@ async def _proxy(
     json_body: Any = None,
     params: Dict[str, Any] | None = None,
 ) -> Response:
-    """
-    Прозрачно проксирует запрос к внутреннему сервису.
-
-    Передает Authorization и тело запроса, возвращает статус и JSON/текст дальше.
-    """
     headers = _auth_header(request)
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
@@ -147,5 +139,4 @@ async def api_finance_by_day(request: Request) -> Response:
 
 @app.get("/{full_path:path}")
 async def spa_fallback(full_path: str) -> FileResponse:  
-    """Возвращает SPA для любых путей, кроме /api и /static."""
     return _frontend_index()
