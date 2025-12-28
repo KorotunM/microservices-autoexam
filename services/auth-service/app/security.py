@@ -13,7 +13,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     """Возвращает безопасный хеш пароля (bcrypt) с проверкой длины."""
-    # bcrypt ограничивает длину пароля 72 байт, поэтому проверяем сами
     if len(password.encode("utf-8")) > 72:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

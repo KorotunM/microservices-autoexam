@@ -1,4 +1,3 @@
-"""Схемы запросов/ответов для сервиса уведомлений."""
 from datetime import datetime
 from typing import Any, Dict, Optional
 
@@ -6,7 +5,6 @@ from pydantic import BaseModel, Field
 
 
 class NotificationLogCreate(BaseModel):
-    """Запрос на логирование события."""
 
     user_id: Optional[str] = Field(None, description="UUID пользователя, может быть пустым")
     event_type: str = Field("event", max_length=64)
@@ -15,7 +13,6 @@ class NotificationLogCreate(BaseModel):
 
 
 class NotificationLogResponse(BaseModel):
-    """Ответ с данными записи лога."""
 
     id: int
     user_id: Optional[str]
@@ -26,7 +23,6 @@ class NotificationLogResponse(BaseModel):
 
 
 class NotificationLogsList(BaseModel):
-    """Список логов с пагинацией."""
 
     items: list[NotificationLogResponse]
     total: int

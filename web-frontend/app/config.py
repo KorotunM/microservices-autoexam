@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # Тексты интерфейса (могут приходить из ConfigMap)
     login_title: str = Field("Вход в систему", env="LOGIN_TITLE")
     register_title: str = Field("Создайте аккаунт", env="REGISTER_TITLE")
-    welcome_message: str = Field("Добро пожаловать в Autoexam", env="WELCOME_MESSAGE")
+    welcome_message: str = Field("Добро пожаловать", env="WELCOME_MESSAGE")
 
     class Config:
         env_file = ".env"

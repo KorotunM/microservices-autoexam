@@ -1,14 +1,9 @@
-"""
-Настройки сервиса уведомлений.
-Все значения можно переопределить через переменные окружения.
-"""
 from functools import lru_cache
 
 from pydantic import BaseSettings, Field
 
 
 class Settings(BaseSettings):
-    """Базовые настройки приложения."""
 
     app_name: str = Field("notification-service", env="APP_NAME")
     host: str = Field("0.0.0.0", env="APP_HOST")
@@ -31,5 +26,4 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Возвращает настроенный экземпляр настроек с кэшированием."""
     return Settings()

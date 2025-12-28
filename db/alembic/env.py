@@ -12,10 +12,8 @@ from alembic import context
 
 from db.models import Base
 
-# Интерпретация конфигурации alembic.ini
 config = context.config
 
-# Логирование из ini
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -23,12 +21,10 @@ target_metadata = Base.metadata
 
 
 def get_url() -> str:
-    """Берет URL БД из переменной окружения либо alembic.ini."""
     return os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"))
 
 
 def run_migrations_offline() -> None:
-    """Запуск миграций в offline-режиме (генерация SQL)."""
     url = get_url()
     context.configure(
         url=url,
@@ -42,7 +38,6 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    """Запуск миграций с подключением."""
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
@@ -53,7 +48,6 @@ def do_run_migrations(connection: Connection) -> None:
 
 
 async def run_migrations_online() -> None:
-    """Запуск миграций в online-режиме через AsyncEngine."""
     configuration = config.get_section(config.config_ini_section) or {}
     configuration["sqlalchemy.url"] = get_url()
 

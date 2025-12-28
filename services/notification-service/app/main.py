@@ -1,4 +1,3 @@
-"""Точка входа сервиса уведомлений."""
 import logging
 from typing import Dict
 
@@ -29,19 +28,16 @@ app = FastAPI(
 
 @app.get("/health/live")
 async def health_live() -> Dict[str, str]:
-    """Эндпоинт для проверки, что процесс живой."""
     return {"status": "live"}
 
 
 @app.get("/health/ready")
 async def health_ready() -> Dict[str, str]:
-    """Эндпоинт для проверки готовности приложения."""
     return {"status": "ready"}
 
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    """Выводит информацию при старте сервиса."""
     logger.info(
         "Сервис %s запущен на %s:%s с БД %s",
         settings.app_name,
@@ -53,7 +49,6 @@ async def on_startup() -> None:
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    """Финализирует работу сервиса."""
     logger.info("Сервис %s завершает работу", settings.app_name)
 
 
@@ -62,11 +57,6 @@ async def log_notification(
     payload: NotificationLogCreate,
     session: AsyncSession = Depends(get_db_session),
 ) -> Dict[str, str]:
-    """
-    Принимает событие, сохраняет в БД и пишет в stdout.
-
-    Возвращает статус logged.
-    """
     log_entry = NotificationLog(
         user_id=payload.user_id,
         event_type=payload.event_type,
@@ -90,11 +80,6 @@ async def get_logs(
     limit: int = Query(None, ge=1, le=500),
     offset: int = Query(0, ge=0),
 ) -> NotificationLogsList:
-    """
-    Возвращает список логов (для отладки).
-
-    Пагинация: limit/offset. По умолчанию limit берется из настроек.
-    """
     settings = get_settings()
     limit_val = limit or settings.default_page_size
     limit_val = min(limit_val, settings.max_page_size)

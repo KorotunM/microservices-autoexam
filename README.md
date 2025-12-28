@@ -94,6 +94,31 @@ kubectl rollout restart -n user-platform-exam deploy/web-frontend
    kubectl scale deploy -n user-platform-exam --all --replicas=2
    kubectl scale deploy -n user-platform-exam postgres --replicas=1
    ```
+9. Команды для проброса портов и проверки health в браузере:
+
+### auth-service
+```bash
+kubectl port-forward -n user-platform-exam svc/auth-service 8001:8001
+```
+**браузер: http://localhost:8001/health/live и http://localhost:8001/health/ready !**
+
+### profile-service
+```bash
+kubectl port-forward -n user-platform-exam svc/profile-service 8002:8002
+```
+**браузер: http://localhost:8002/health/live и http://localhost:8002/health/ready !**
+
+### finance-service
+```bash
+kubectl port-forward -n user-platform-exam svc/finance-service 8003:8003
+```
+**браузер: http://localhost:8003/health/live и http://localhost:8003/health/ready !**
+
+### notification-service
+```bash
+kubectl port-forward -n user-platform-exam svc/notification-service 8004:8004
+```
+**браузер: http://localhost:8004/health/live и http://localhost:8004/health/ready !**
 
 ## Работа с БД и миграциями
 - Модели и Alembic находятся в `db/`.

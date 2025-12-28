@@ -15,7 +15,6 @@ from .config import get_settings
 settings = get_settings()
 
 def _resolve_log_level(value: str) -> int:
-    """Возвращает числовой уровень логирования, по умолчанию INFO."""
     level_name = (value or "INFO").upper()
     return logging._nameToLevel.get(level_name, logging.INFO)
 
@@ -27,7 +26,6 @@ logger = logging.getLogger(settings.app_name)
 
 app = FastAPI(title="Web Frontend", description="SPA для Autoexam", version="0.1.0")
 
-# Путь к статике
 static_dir = Path(__file__).resolve().parent.parent / "static"
 app.mount("/static", StaticFiles(directory=static_dir, html=True), name="static")
 
@@ -71,19 +69,16 @@ async def _proxy(
 
 @app.get("/health/live")
 async def health_live() -> Dict[str, str]:
-    """Показывает, что процесс живой."""
     return {"status": "live"}
 
 
 @app.get("/health/ready")
 async def health_ready() -> Dict[str, str]:
-    """Показывает готовность приложения."""
     return {"status": "ready"}
 
 
 @app.get("/ui-config.json")
 async def ui_config() -> Dict[str, str]:
-    """Возвращает конфигурационные тексты UI из env/ConfigMap."""
     return {
         "login_title": settings.login_title,
         "register_title": settings.register_title,
@@ -91,7 +86,6 @@ async def ui_config() -> Dict[str, str]:
     }
 
 
-# Прокси-эндпоинты к внутренним сервисам
 @app.post("/api/auth/register")
 async def api_register(request: Request) -> Response:
     body = await request.json()
@@ -151,9 +145,7 @@ async def api_finance_by_day(request: Request) -> Response:
     url = f"{settings.finance_base_url}/finance/stats/by-day"
     return await _proxy("GET", url, request, params=params)
 
-
-# SPA fallback: все остальные маршруты отдаем index.html
 @app.get("/{full_path:path}")
-async def spa_fallback(full_path: str) -> FileResponse:  # noqa: ARG001
+async def spa_fallback(full_path: str) -> FileResponse:  
     """Возвращает SPA для любых путей, кроме /api и /static."""
     return _frontend_index()

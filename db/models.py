@@ -1,4 +1,3 @@
-"""SQLAlchemy модели для общего PostgreSQL (async)."""
 import uuid
 from datetime import datetime
 
@@ -21,11 +20,9 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
-    """Базовый класс для моделей с общей metadata."""
-
+    pass
 
 class User(Base):
-    """Пользователь приложения."""
 
     __tablename__ = "users"
 
@@ -38,7 +35,6 @@ class User(Base):
 
 
 class Profile(Base):
-    """Профиль пользователя (связь 1:1 с users)."""
 
     __tablename__ = "profiles"
     __table_args__ = (UniqueConstraint("email", name="profiles_email_unique"),)
@@ -59,7 +55,6 @@ class Profile(Base):
 
 
 class Transaction(Base):
-    """Доходы/расходы пользователя."""
 
     __tablename__ = "transactions"
     __table_args__ = (
@@ -88,7 +83,6 @@ class Transaction(Base):
 
 
 class NotificationLog(Base):
-    """Логи уведомлений (упрощенный сервис уведомлений)."""
 
     __tablename__ = "notification_logs"
     __table_args__ = (

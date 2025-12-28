@@ -1,4 +1,3 @@
-"""Точка входа сервиса авторизации."""
 import logging
 from typing import Dict
 
@@ -33,19 +32,16 @@ app = FastAPI(
 
 @app.get("/health/live")
 async def health_live() -> Dict[str, str]:
-    """Эндпоинт для проверки, что процесс живой."""
     return {"status": "live"}
 
 
 @app.get("/health/ready")
 async def health_ready() -> Dict[str, str]:
-    """Эндпоинт для проверки готовности приложения."""
     return {"status": "ready"}
 
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    """Выводит информацию при старте сервиса."""
     logger.info(
         "Сервис %s запущен на %s:%s с БД %s",
         settings.app_name,
@@ -62,7 +58,6 @@ async def on_startup() -> None:
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    """Финализирует работу сервиса."""
     logger.info("Сервис %s завершает работу", settings.app_name)
 
 
@@ -74,11 +69,6 @@ async def on_shutdown() -> None:
 async def register_user(
     payload: RegisterRequest, session: AsyncSession = Depends(get_db_session)
 ) -> RegisterResponse:
-    """
-    Регистрирует нового пользователя.
-
-    Возвращает 409 если username занят.
-    """
     user = User(username=payload.username, password_hash=hash_password(payload.password))
     session.add(user)
     try:
@@ -101,11 +91,6 @@ async def register_user(
 async def login_user(
     payload: LoginRequest, session: AsyncSession = Depends(get_db_session)
 ) -> TokenResponse:
-    """
-    Авторизация по логину и паролю, возвращает JWT.
-
-    При неверном пароле/пользователе возвращает 401.
-    """
     stmt = select(User).where(User.username == payload.username)
     result = await session.execute(stmt)
     user: User | None = result.scalar_one_or_none()
@@ -127,11 +112,6 @@ async def login_user(
 async def validate_token(
     token_payload: dict = Depends(get_current_user_token),
 ) -> ValidateResponse:
-    """
-    Проверяет переданный Bearer JWT и возвращает payload пользователя.
-
-    Токен передается через Authorization: Bearer <token>.
-    """
     return ValidateResponse(
         user_id=token_payload["sub"],
         username=token_payload["username"],
